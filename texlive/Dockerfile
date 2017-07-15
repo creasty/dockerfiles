@@ -16,35 +16,39 @@ RUN set -x \
 
 RUN set -x \
   && apt-get install -y --no-install-recommends \
-      texlive-lang-japanese \
-      texlive-fonts-recommended \
-      texlive-latex-extra \
-      lmodern \
       fonts-lmodern \
-      tex-gyre \
+      fonts-noto-cjk \
       fonts-texgyre \
-      texlive-pictures \
       ghostscript \
       gsfonts \
-      zip \
+      lmodern \
       mecab \
       mecab-ipadic-utf8 \
       poppler-data \
+      tex-gyre \
+      texlive-fonts-recommended \
+      texlive-lang-japanese \
+      texlive-latex-extra \
+      texlive-pictures \
+      zip \
     && apt-get clean
-
-# NOTE noto serif is experimental. can't install via fonts-noto-cjk now.
-# RUN echo "deb http://ftp.jp.debian.org/debian/ stretch-backports main" >> /etc/apt/sources.list
-# RUN apt-get update && apt-get -y install fonts-noto-cjk/stretch-backports
-ADD https://kmuto.jp/debian/noto/fonts-noto-cjk_1.004+repack3-1~exp1_all.deb /tmp/noto.deb
-RUN dpkg -i /tmp/noto.deb && rm /tmp/noto.deb
 
 # Use noto for uplatex
 ADD noto/ /usr/share/texlive/texmf-dist/fonts/map/dvipdfmx/ptex-fontmaps/noto/
 RUN texhash && kanji-config-updmap-sys noto
 
 # Update software
-RUN /usr/bin/tlmgr update --self --all
+RUN tlmgr init-usertree \
+  && tlmgr update --self --all
+
+RUN set -x \
+  && tlmgr install algorithmicx \
+  && sudo tlmgr install algorithms \
+  && sudo tlmgr install boondox \
+  && sudo tlmgr install etoolbox \
+  && sudo tlmgr install fontaxes \
+  && sudo tlmgr install newtx
 
 # Configure texmf
 ADD texmf.cnf /usr/local/texlive/texmf-local/web2c/texmf.cnf
-RUN /usr/bin/mktexlsr
+RUN sudo mktexlsr
