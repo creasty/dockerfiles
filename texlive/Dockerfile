@@ -22,7 +22,7 @@ RUN set -x \
       lmodern \
       fonts-lmodern \
       tex-gyre \
-      fonts-texgyre
+      fonts-texgyre \
       texlive-pictures \
       ghostscript \
       gsfonts \
@@ -38,6 +38,13 @@ RUN set -x \
 ADD https://kmuto.jp/debian/noto/fonts-noto-cjk_1.004+repack3-1~exp1_all.deb /tmp/noto.deb
 RUN dpkg -i /tmp/noto.deb && rm /tmp/noto.deb
 
-# use noto for uplatex
+# Use noto for uplatex
 ADD noto/ /usr/share/texlive/texmf-dist/fonts/map/dvipdfmx/ptex-fontmaps/noto/
 RUN texhash && kanji-config-updmap-sys noto
+
+# Configure texmf
+ADD texmf.cnf /usr/local/texlive/texmf-local/web2c/texmf.cnf
+RUN mktexlsr
+
+# Update software
+RUN tlmgr update --self --all
