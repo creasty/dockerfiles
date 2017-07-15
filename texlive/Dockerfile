@@ -45,13 +45,13 @@ RUN tlmgr init-usertree \
 
 RUN set -x \
   && tlmgr install algorithmicx \
-  && sudo tlmgr install algorithms \
-  && sudo tlmgr install boondox \
-  && sudo tlmgr install etoolbox \
-  && sudo tlmgr install fontaxes \
-  && sudo tlmgr install newtx \
-  && sudo tlmgr install vaucanson-g
+  && tlmgr install algorithms \
+  && tlmgr install boondox \
+  && tlmgr install etoolbox \
+  && tlmgr install fontaxes \
+  && tlmgr install newtx \
+  && tlmgr install vaucanson-g
 
 # Configure texmf
 ADD texmf.cnf /usr/local/texlive/texmf-local/web2c/texmf.cnf
-RUN sudo mktexlsr
+RUN mktexlsr
