@@ -37,6 +37,7 @@ RUN set -x \
     && apt-get clean
 
 # Use noto for uplatex
+ADD noto/ /usr/share/texlive/texmf-dist/fonts/map/dvipdfmx/ptex-fontmaps/noto/
 RUN texhash && kanji-config-updmap-sys noto
 
 # Update software
