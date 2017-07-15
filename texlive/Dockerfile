@@ -30,6 +30,8 @@ RUN set -x \
       texlive-lang-japanese \
       texlive-latex-extra \
       texlive-pictures \
+      wget \
+      xzdec \
       zip \
     && apt-get clean
 
