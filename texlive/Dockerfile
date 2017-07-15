@@ -27,10 +27,7 @@ RUN set -x \
       ghostscript \
       gsfonts \
       zip \
-      ruby-zip \
-      ruby-nokogiri \
       mecab \
-      ruby-mecab \
       mecab-ipadic-utf8 \
       poppler-data \
     && apt-get clean
