@@ -42,9 +42,9 @@ RUN dpkg -i /tmp/noto.deb && rm /tmp/noto.deb
 ADD noto/ /usr/share/texlive/texmf-dist/fonts/map/dvipdfmx/ptex-fontmaps/noto/
 RUN texhash && kanji-config-updmap-sys noto
 
+# Update software
+RUN /usr/bin/tlmgr update --self --all
+
 # Configure texmf
 ADD texmf.cnf /usr/local/texlive/texmf-local/web2c/texmf.cnf
-RUN mktexlsr
-
-# Update software
-RUN tlmgr update --self --all
+RUN /usr/bin/mktexlsr
