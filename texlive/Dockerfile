@@ -49,7 +49,8 @@ RUN set -x \
   && sudo tlmgr install boondox \
   && sudo tlmgr install etoolbox \
   && sudo tlmgr install fontaxes \
-  && sudo tlmgr install newtx
+  && sudo tlmgr install newtx \
+  && sudo tlmgr install vaucanson-g
 
 # Configure texmf
 ADD texmf.cnf /usr/local/texlive/texmf-local/web2c/texmf.cnf
