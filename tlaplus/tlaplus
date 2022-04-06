@@ -62,7 +62,6 @@ case "$TOOL_NAME" in
     run_tool tla2tex.TLA -shade -latexCommand pdflatex -latexOutputExt pdf -metadir "$METADIR" "$@"
     ;;
   pm)
-    # Not supported yet
     run /usr/bin/tlapm -I /usr/lib/tlaps "$@"
     ;;
   sh)
