@@ -1,40 +1,52 @@
 #=== Build
 #==============================================================================================
-FROM debian:9 AS build
+FROM debian:bullseye AS build
 
 RUN set -x \
   && apt-get update \
   && apt-get install -y --no-install-recommends \
-    wget openjdk-8-jre-headless build-essential libz-dev \
-    ocaml-nox ocaml-native-compilers
+    wget libz-dev ca-certificates
 
 WORKDIR /tmp
-RUN wget https://github.com/tlaplus/tlaplus/releases/download/v1.7.2/tla2tools.jar
+ENV TLATOOL_VERSION 1.7.2
+RUN wget https://github.com/tlaplus/tlaplus/releases/download/v$TLATOOL_VERSION/tla2tools.jar
 
-RUN wget https://github.com/tlaplus/tlapm/releases/download/v1.4.5/tlaps-1.4.5-x86_64-linux-gnu-inst.bin
-RUN chmod +x tlaps-1.4.5-x86_64-linux-gnu-inst.bin
-RUN ./tlaps-1.4.5-x86_64-linux-gnu-inst.bin || true
+WORKDIR /tmp
+ENV ZENON_VERSION 0.8.5
+RUN wget https://github.com/zenon-prover/zenon/archive/refs/tags/$ZENON_VERSION.tar.gz -O zenon.tar.gz
+RUN tar -xzf zenon.tar.gz
+RUN set -x \
+  && apt-get update \
+  && apt-get install -y --no-install-recommends \
+    build-essential ocaml coq
+RUN set -x \
+  && cd /tmp/zenon-$ZENON_VERSION \
+  && ./configure \
+  && make \
+  && make install
 
-# RUN wget https://github.com/tlaplus/tlapm/archive/refs/tags/v1.4.5.tar.gz -O tlapm.tar.gz
-# RUN tar -xzf tlapm.tar.gz
-# RUN set -x \
-#   && cd /tmp/tlapm-1.4.5 \
-#   && ./configure \
-#   && make all \
-#   && make install
+WORKDIR /tmp
+ENV TLAPM_VERSION 1.4.5
+RUN wget https://github.com/tlaplus/tlapm/releases/download/v$TLAPM_VERSION/tlaps-${TLAPM_VERSION}-x86_64-linux-gnu-inst.bin -O tlaps-inst
+RUN set -x \
+  && chmod +x tlaps-inst \
+  && ./tlaps-inst || true # FIXME: 'self-test' fails for some reason...
 
-#=== Runtime
+#=== Stage
 #==============================================================================================
-FROM debian:9
+FROM debian:bullseye-slim
 
 RUN set -x \
   && apt-get update \
   && apt-get install -y --no-install-recommends \
-    texlive-latex-base openjdk-8-jre-headless \
-    procps
-
-WORKDIR /app
+    texlive-latex-base openjdk-11-jre-headless procps \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /tmp/tla2tools.jar /usr/lib/
-# COPY --from=build /usr/local/bin/zenon /usr/bin/
-# COPY --from=build /usr/local/bin/tlapm /usr/bin/
+COPY --from=build /usr/local/bin/tlapm /usr/bin/
+COPY --from=build /usr/local/lib/tlaps /usr/lib/tlaps
+COPY --from=build /usr/local/bin/zenon /usr/bin/
+COPY --from=build /usr/local/lib/zenon /usr/lib/zenon
+
+RUN echo 'Add LoadPath "/usr/lib/zenon".' > "$HOME/.coqrc"
