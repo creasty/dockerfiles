@@ -3,10 +3,12 @@
 #>
 #> COMMANDS:
 #>     tlc [args] <file>
-#>     pcal ...
-#>     sany ...
+#>     pcal [args] <module>
+#>     sany <file>
+#>     repl
 #>     tex <file>
 #>     pdf <file>
+#>     pm <file>
 
 METADIR=./metadir
 
@@ -47,6 +49,9 @@ case "$TOOL_NAME" in
     ;;
   sany)
     run_tool tla2sany.SANY "$@"
+    ;;
+  repl)
+    run_tool tlc2.REPL "$@"
     ;;
   tex)
     ensure_metadir
