@@ -2,13 +2,14 @@
 #> tlaplus <command>
 #>
 #> COMMANDS:
-#>     tlc [args] <file>
-#>     pcal [args] <module>
-#>     sany <file>
-#>     repl
-#>     tex <file>
-#>     pdf <file>
-#>     pm <file>
+#>     parse <file>             SANY Syntactic Analyzer
+#>     check [<args>] <file>    TLC model checker
+#>     proof [<args>] <file>    TLAPS Proof System
+#>     pcal [<args>] <file>     PlusCal Translator
+#>     tex <file>               TLATeX Pretty-Printer (produces .dvi)
+#>     pdf <file>               TLATeX Pretty-Printer (produces .pdf)
+
+set -euo pipefail
 
 METADIR=./metadir
 
@@ -31,6 +32,13 @@ run_tool() {
   run java -XX:+UseParallelGC -classpath /usr/lib/tla2tools.jar "$@"
 }
 
+run_tlapm() {
+  local file="${*: -1}"
+  local -a args=("${@:1:$#-1}" "$(basename "$file")")
+  cd "$(dirname "$file")"
+  run /usr/bin/tlapm -I /usr/lib/tlaps "${args[@]}"
+}
+
 ensure_metadir() {
   [ -d "$METADIR" ] || mkdir -p "$METADIR"
 }
@@ -41,17 +49,14 @@ TOOL_NAME="${1:-}"
 shift || true
 
 case "$TOOL_NAME" in
-  tlc)
+  check)
     run_tool tlc2.TLC "$@"
     ;;
   pcal)
     run_tool pcal.trans "$@"
     ;;
-  sany)
+  parse)
     run_tool tla2sany.SANY "$@"
-    ;;
-  repl)
-    run_tool tlc2.REPL "$@"
     ;;
   tex)
     ensure_metadir
@@ -61,8 +66,8 @@ case "$TOOL_NAME" in
     ensure_metadir
     run_tool tla2tex.TLA -shade -latexCommand pdflatex -latexOutputExt pdf -metadir "$METADIR" "$@"
     ;;
-  pm)
-    run /usr/bin/tlapm -I /usr/lib/tlaps "$@"
+  proof)
+    run_tlapm "$@"
     ;;
   sh)
     # For debugging
